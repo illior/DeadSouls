@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayTagContainer.h"
 #include "DSCharacter.generated.h"
 
 class UDSAbilitySystemComponent;
@@ -39,13 +40,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Input")
 	TObjectPtr<UInputAction> MoveAction;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Input", Meta = (Categories = "InputTag"))
+	TMap<TObjectPtr<UInputAction>, FGameplayTag> InputBindings;
+	
 	//~ Begin AActor Interface.
 	virtual void BeginPlay() override;
 	//~ End AActor Interface
 
 	void InputLook(const FInputActionInstance& Value);
 	void InputMove(const FInputActionInstance& Value);
-	
+
+	void InputAbilityPress(const FInputActionInstance& Value);
+	void InputAbilityRelease(const FInputActionInstance& Value);
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> SpringArmComponent;

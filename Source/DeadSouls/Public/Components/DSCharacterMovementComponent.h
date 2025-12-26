@@ -26,5 +26,5 @@ protected:
 
 	bool bShouldSprint = false;
 	
-	void SprintTagHandle(FGameplayTag InGameplayTag, int32 InInt);
+	void CharacterStateHandle(FGameplayTag InGameplayTag, int32 InInt);
 };

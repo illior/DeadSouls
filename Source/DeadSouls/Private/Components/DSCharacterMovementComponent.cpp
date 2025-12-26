@@ -3,6 +3,7 @@
 #include "Components/DSCharacterMovementComponent.h"
 #include "AbilitySystem/DSGameplayTags.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystemGlobals.h"
 
 UDSCharacterMovementComponent::UDSCharacterMovementComponent()
 {
@@ -18,7 +19,10 @@ void UDSCharacterMovementComponent::InitializeWithAbilitySystem(UAbilitySystemCo
 {
 	check(AbilitySystem);
 	
-	AbilitySystem->RegisterGameplayTagEvent(DSGameplayTags::Character_State_Sprint, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UDSCharacterMovementComponent::SprintTagHandle);
+	AbilitySystem->RegisterGameplayTagEvent(
+		FGameplayTag::RequestGameplayTag(FName(TEXT("Character.State"))),
+		EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UDSCharacterMovementComponent::CharacterStateHandle
+	);
 }
 
 float UDSCharacterMovementComponent::GetMaxSpeed() const
@@ -31,7 +35,21 @@ float UDSCharacterMovementComponent::GetMaxSpeed() const
 	return Super::GetMaxSpeed();
 }
 
-void UDSCharacterMovementComponent::SprintTagHandle(FGameplayTag InGameplayTag, int32 InInt)
+void UDSCharacterMovementComponent::CharacterStateHandle(FGameplayTag InGameplayTag, int32 InInt)
 {
-	bShouldSprint = InInt != 0;
+	UAbilitySystemComponent* AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwner());
+	if (!IsValid(AbilitySystem))
+	{
+		return;
+	}
+	
+	bShouldSprint = AbilitySystem->GetGameplayTagCount(DSGameplayTags::Character_State_Sprint) != 0;
+	if (AbilitySystem->GetGameplayTagCount(DSGameplayTags::Character_State_DisableMovement) != 0)
+	{
+		SetMovementMode(EMovementMode::MOVE_None);
+	}
+	else
+	{
+		SetMovementMode(EMovementMode::MOVE_Walking);
+	}
 }

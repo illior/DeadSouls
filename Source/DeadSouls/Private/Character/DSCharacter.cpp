@@ -90,6 +90,12 @@ void ADSCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputC
 	{
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ADSCharacter::InputLook);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ADSCharacter::InputMove);
+		
+		for (const TPair<TObjectPtr<UInputAction>, FGameplayTag>& Elem : InputBindings)
+		{
+			EnhancedInputComponent->BindAction(Elem.Key, ETriggerEvent::Started, this, &ADSCharacter::InputAbilityPress);
+			EnhancedInputComponent->BindAction(Elem.Key, ETriggerEvent::Completed, this, &ADSCharacter::InputAbilityRelease);
+		}
 	}
 }
 
@@ -122,4 +128,28 @@ void ADSCharacter::InputMove(const FInputActionInstance& Value)
 
 	AddMovementInput(ForwardDirection, MovementVector.Y);
 	AddMovementInput(RightDirection, MovementVector.X);
+}
+
+void ADSCharacter::InputAbilityPress(const FInputActionInstance& Value)
+{
+	if (IsValid(AbilitySystemComponent))
+	{
+		FGameplayTag* InputTag = InputBindings.Find(Value.GetSourceAction());
+		if (InputTag != nullptr)
+		{
+			AbilitySystemComponent->PressInputTag(*InputTag);
+		}
+	}
+}
+
+void ADSCharacter::InputAbilityRelease(const FInputActionInstance& Value)
+{
+	if (IsValid(AbilitySystemComponent))
+	{
+		FGameplayTag* InputTag = InputBindings.Find(Value.GetSourceAction());
+		if (InputTag != nullptr)
+		{
+			AbilitySystemComponent->ReleaseInputTag(*InputTag);
+		}
+	}
 }
