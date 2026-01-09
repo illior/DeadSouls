@@ -3,6 +3,7 @@
 #include "DeadSouls/Public/Character/DSCharacter.h"
 #include "Player/DSPlayerState.h"
 
+#include "Components/DSInventoryComponent.h"
 #include "AbilitySystem/DSAbilitySystemComponent.h"
 #include "Components/DSCharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -40,6 +41,9 @@ ADSCharacter::ADSCharacter(const FObjectInitializer& ObjInit)
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CharacterCamera"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
 	CameraComponent->bUsePawnControlRotation = false;
+	
+	// InventoryComponent
+	InventoryComponent = CreateDefaultSubobject<UDSInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 USpringArmComponent* ADSCharacter::GetSpringArmComponent() const
@@ -50,6 +54,11 @@ USpringArmComponent* ADSCharacter::GetSpringArmComponent() const
 UCameraComponent* ADSCharacter::GetCameraComponent() const
 {
 	return CameraComponent;
+}
+
+UDSInventoryComponent* ADSCharacter::GetInventoryComponent() const
+{
+	return InventoryComponent;
 }
 
 UAbilitySystemComponent* ADSCharacter::GetAbilitySystemComponent() const

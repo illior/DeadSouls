@@ -2,6 +2,7 @@
 
 #include "Interaction/DSInteractionActor.h"
 #include "Interaction/Components/DSInteractionWidgetComponent.h"
+#include "Character/DSCharacter.h"
 
 ADSInteractionActor::ADSInteractionActor()
 {
@@ -80,10 +81,18 @@ void ADSInteractionActor::SetShowWidgetKey(const bool& bInShowKey)
 
 void ADSInteractionActor::StartInteract(ADSCharacter* InCharacter)
 {
+	if (!IsValid(InCharacter))
+	{
+		return;
+	}
+	
+	Character = InCharacter;
+	
 	BP_Interact();
 	
 	if (!bShouldHold)
 	{
+		Character = nullptr;
 		SetEnabled(false);
 		
 		if (bReusable)
@@ -114,6 +123,7 @@ void ADSInteractionActor::StopInteract(const float& InHoldTime)
 			WidgetComponent->StopHold();
 		}
 		
+		Character = nullptr;
 		if (CooldownTimeIfCanceled > 0.0f)
 		{
 			SetEnabled(false);
@@ -132,6 +142,8 @@ void ADSInteractionActor::StopInteract(const float& InHoldTime)
 		{
 			WidgetComponent->StopHold();
 		}
+		
+		Character = nullptr;
 		SetEnabled(false);
 	
 		if (bReusable)

@@ -51,6 +51,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DeadSouls: Interaction", meta = (EditCondition = "bShouldHold", ClampMin = "0", UIMin = "0"))
 	float CooldownTimeIfCanceled = 0.5f;
 	
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<ADSCharacter> Character;
+	
 	FTimerHandle CooldownTimer;
 	
 	UFUNCTION(BlueprintImplementableEvent, DisplayName="Interact", meta = (ScriptName = "Interact"))

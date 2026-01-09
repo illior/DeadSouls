@@ -19,6 +19,11 @@ public class DeadSouls : ModuleRules
 			"GameplayTags",
 			"GameplayTasks"
 		});
+		
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"InventorySystem"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

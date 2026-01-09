@@ -8,6 +8,7 @@
 #include "GameplayTagContainer.h"
 #include "DSCharacter.generated.h"
 
+class UDSInventoryComponent;
 class UDSAbilitySystemComponent;
 class USpringArmComponent;
 class UCameraComponent;
@@ -25,6 +26,7 @@ public:
 
 	USpringArmComponent* GetSpringArmComponent() const;
 	UCameraComponent* GetCameraComponent() const;
+	UDSInventoryComponent* GetInventoryComponent() const;
 	//~ Begin AbilitySystem Interface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	//~ End AbilitySystem Interface
@@ -59,6 +61,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> CameraComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UDSInventoryComponent> InventoryComponent;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UDSAbilitySystemComponent> AbilitySystemComponent;
