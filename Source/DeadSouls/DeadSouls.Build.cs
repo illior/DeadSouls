@@ -15,6 +15,7 @@ public class DeadSouls : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
+			"UMG",
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks"
@@ -25,7 +26,10 @@ public class DeadSouls : ModuleRules
 			"InventorySystem"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] {
+			"Slate",
+			"SlateCore"
+		});
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

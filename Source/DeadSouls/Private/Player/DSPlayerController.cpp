@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "DeadSouls/Public/Player/DSPlayerController.h"
-
+#include "UI/DSGameHUD.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
@@ -58,7 +58,11 @@ void ADSPlayerController::ResumeGame()
 		Subsystem->AddMappingContext(DefaultMappingContext, 0, ModifyContextOptions);
 	}
 	
-	//
+	ADSGameHUD* GameHUD =  GetHUD<ADSGameHUD>();
+	if (IsValid(GameHUD))
+	{
+		GameHUD->CloseCurrentWidgets();
+	}
 }
 
 void ADSPlayerController::SetupInputComponent()
@@ -91,10 +95,22 @@ void ADSPlayerController::BeginPlay()
 
 void ADSPlayerController::InputPause(const FInputActionInstance& Value)
 {
+	PauseGame();
 	
+	ADSGameHUD* GameHUD =  GetHUD<ADSGameHUD>();
+	if (IsValid(GameHUD))
+	{
+		GameHUD->OpenPauseWidget();
+	}
 }
 
 void ADSPlayerController::InputInventory(const FInputActionInstance& Value)
 {
+	PauseGame();
 	
+	ADSGameHUD* GameHUD =  GetHUD<ADSGameHUD>();
+	if (IsValid(GameHUD))
+	{
+		GameHUD->OpenInventoryWidget();
+	}
 }

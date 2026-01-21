@@ -11,7 +11,8 @@
 			"AdditionalDependencies": [
 				"InventorySystem",
 				"UMG",
-				"EnhancedInput"
+				"EnhancedInput",
+				"DeveloperSettings"
 			]
 		},
 		{
