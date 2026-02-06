@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DSInventoryTypes.h"
 #include "Engine/DeveloperSettings.h"
 #include "DSInventorySettings.generated.h"
 
@@ -13,4 +14,9 @@ class INVENTORYSYSTEM_API UDSInventorySettings : public UDeveloperSettings
 
 public:
 	UDSInventorySettings(const FObjectInitializer& ObjectInitializer);
+	
+	TOptional<FDSCraftRecipe> GetCraftRecipe(UDSBaseItem* FirstItem, UDSBaseItem* SecondItem) const;
+protected:
+	UPROPERTY(EditDefaultsOnly, Config, Category = "DefaultCraftRecipes")
+	TArray<FDSCraftRecipe> Crafts;
 };

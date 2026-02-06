@@ -9,6 +9,7 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogInventoryComponent, Log, All);
 
+class UDSBaseItem;
 class UDSItemData;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -25,12 +26,32 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
 	FDSOnInventorySlotsIncrementedSignature  OnSlotsIncremented;
 	
+	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
+	FDSOnInventoryTryingAddItemSignature  OnTryingAddItem;
+	
+	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
+	FDSOnInventoryItemCreatedSignature  OnItemCreated;
+	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
+	FDSOnInventoryItemRemovedSignature  OnItemRemoved;
+	
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	EDSSlotState GetSlotState(FIntPoint InPosition) const;
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	bool IsInitialized() const { return bInitialized; }
 	FIntPoint GetMaxSize() const { return MaxSize; }
 	int32 GetCurrentSlotsCount() const { return CurrentSlotsCount; }
+	
+	UDSItemData* GetItemByPosition(FIntPoint InPosition) const;
+	
+	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
+	void TryAddNewItem(UDSItemData* InItemData);
+	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
+	bool TryAddItem(UDSItemData* InItemData);
+	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
+	bool TryRemoveItem(UDSItemData* InItemData, bool bIsGarbage = true);
+	
+	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
+	bool TrySetItemPosition(UDSItemData* InItemData, FIntPoint InPosition);
 	
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	bool AddSlots(int32 InCount);
@@ -46,6 +67,15 @@ protected:
 	TArray<TObjectPtr<UDSItemData>> Items;
 	
 	void SetSlotState(const FIntPoint& InPosition, const EDSSlotState& InState);
+	
+	void AddItem(UDSItemData* InItemData);
+	void RemoveItem(UDSItemData* InItemData);
+	
+	bool CanCombineItems(UDSBaseItem* InItem1, UDSBaseItem* InItem2) const;
+	bool CanCraftItems(UDSBaseItem* InItem1, UDSBaseItem* InItem2) const;
+
+	void CombineItems(UDSItemData* ItemInPosition, UDSItemData* MovingItem);
+	void CraftItems(UDSItemData* ItemInPosition, UDSItemData* MovingItem);
 	
 	virtual void Initialize();
 	

@@ -32,15 +32,15 @@ public:
 #endif
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, SaveGame, Category = "InventorySystem", meta = (ClampMin = "0"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, SaveGame, Category = "Weapon Data", meta = (ClampMin = "0"))
 	int32 CurrentAmmoInClip = 1;
 
-	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "InventorySystem")
+	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Weapon Data")
 	int32 FastAccessIndex = -1;
-	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "InventorySystem")
+	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Weapon Data")
 	bool bIsEquip = false;
 	
-	FDSWeaponItemData* GetCachedWeaponItem() const;
+	FDSWeaponItemData GetCachedWeaponItem() const;
 private:
-	mutable FDSWeaponItemData* CachedWeaponItem;
+	mutable FDSWeaponItemData CachedWeaponItem = FDSWeaponItemData();
 };

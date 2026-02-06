@@ -48,6 +48,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Item")
 	TObjectPtr<UTexture2D> Icon = nullptr;
 	
-	UPROPERTY(EditAnywhere, meta = (BaseStruct = "/Script/InventorySystem.DSItemInstancedProperty", ExcludeBaseStruct), Category = "Base Item")
+	UPROPERTY(EditAnywhere, meta = (BaseStruct = "/Script/InventorySystem.DSItemInstancedProperty", ExcludeBaseStruct, ShowTreeView), Category = "Base Item")
 	TArray<FInstancedStruct> ItemProperties;
 };

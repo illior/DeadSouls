@@ -35,8 +35,8 @@ bool UDSBaseItem::HasProperty(const UScriptStruct* InScriptStruct) const
 FString UDSBaseItem::ToString() const
 {
 	return FString::Printf(TEXT("Name: %s, Description: %s, CanStack: %s, MaxStackAmount: %i, Size: %i"),
-		*(DisplayName.ToString()),
-		*(DisplayDescription.ToString()),
+		*DisplayName.ToString(),
+		*DisplayDescription.ToString(),
 		bCanStack ? TEXT("True") : TEXT("False"),
 		MaxStackAmount,
 		Size);

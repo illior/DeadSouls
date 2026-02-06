@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InventorySystem/Public/DSItemData.h"
+#include "Components/DSInventoryComponent.h"
 #include "Items/DSBaseItem.h"
 
 FText UDSItemData::GetItemName() const
@@ -43,6 +44,22 @@ bool UDSItemData::ItemHasProperty(const UScriptStruct* InScriptStruct) const
 	return IsValid(Item) ? Item->HasProperty(InScriptStruct) : false;
 }
 
+bool UDSItemData::SetPosition(const FIntPoint InPosition)
+{
+	UDSInventoryComponent* InventoryComponent = Cast<UDSInventoryComponent>(GetOuter());
+	if (IsValid(InventoryComponent))
+	{
+		return InventoryComponent->TrySetItemPosition(this, InPosition);
+	}
+	else
+	{
+		Position = InPosition;
+		OnItemUpdated.Broadcast(this);
+		
+		return true;
+	}
+}
+
 void UDSItemData::Initialize(UDSBaseItem* InItem, int32 InCount, FIntPoint InPosition)
 {
 	if (IsValid(InItem))
@@ -66,6 +83,14 @@ bool UDSItemData::IsFull() const
 bool UDSItemData::CanDrop() const
 {
 	return true;
+}
+
+FString UDSItemData::ToString() const
+{
+	return FString::Printf(TEXT("Name: %s, Position: %s, Count: %i"),
+		*Item->GetName(),
+		*Position.ToString(),
+		Count);
 }
 
 #if WITH_EDITOR

@@ -5,9 +5,18 @@
 #include "CoreMinimal.h"
 #include "DSInventoryTypes.generated.h"
 
+class UDSBaseItem;
+class UDSItemData;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDSOnInventoryInitializedSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDSOnInventorySlotsIncrementedSignature, int32, DeltaSlots);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDSOnInventoryTryingAddItemSignature, UDSItemData*, InItemData);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDSOnInventoryItemCreatedSignature, UDSItemData*, InItemData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDSOnInventoryItemRemovedSignature, UDSItemData*, InItemData);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDSOnInventoryItemUpdatedSignature, UDSItemData*, InItemData);
 
 UENUM(BlueprintType)
 enum class EDSSlotState : uint8
@@ -53,9 +62,35 @@ struct FDSWeaponItemData : public FDSItemInstancedProperty
 {
 	GENERATED_BODY()
 	
+	FDSWeaponItemData()
+	{
+		MaxAmmoInClip = 0;
+		AmmoType = EDSAmmoType::Pistol;
+	}
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = "1"))
 	int32 MaxAmmoInClip = 1;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EDSAmmoType AmmoType = EDSAmmoType::Pistol;
+};
+
+USTRUCT()
+struct FDSCraftRecipe
+{
+	GENERATED_BODY()
+
+
+public:
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UDSBaseItem> FirstItem;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UDSBaseItem> SecondItem;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UDSBaseItem> Result;
+
+	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "1"))
+	int32 Count = 1;
 };

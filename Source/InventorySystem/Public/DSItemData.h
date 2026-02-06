@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "DSInventoryTypes.h"
 #include "StructUtils/InstancedStruct.h"
 #include "DSItemData.generated.h"
 
@@ -14,7 +15,11 @@ class INVENTORYSYSTEM_API UDSItemData : public UObject
 {
 	GENERATED_BODY()
 	
+	friend class UDSInventoryComponent;
 public:
+	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
+	FDSOnInventoryItemUpdatedSignature OnItemUpdated;
+	
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	FText GetItemName() const;
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
@@ -37,6 +42,9 @@ public:
 	int32 GetCount() const { return Count; };
 	FIntPoint GetPosition() const { return Position; };
 	
+	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
+	bool SetPosition(const FIntPoint InPosition);
+
 	virtual void Initialize(UDSBaseItem* InItem, int32 InCount, FIntPoint InPosition);
 
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
@@ -46,17 +54,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	virtual bool CanDrop() const;
 	
+	virtual FString ToString() const;
+	
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, SaveGame, Category = "InventorySystem")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, SaveGame, Category = "Item Data")
 	TObjectPtr<UDSBaseItem> Item = nullptr;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "InventorySystem", meta = (ClampMin = "1"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Data", meta = (ClampMin = "1"))
 	int32 Count = 1;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "InventorySystem")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Data")
 	FIntPoint Position = FIntPoint(0, 0);
 };

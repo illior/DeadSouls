@@ -1,18 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "DSWeaponData.h"
-
-#include "VectorUtil.h"
 #include "Items/DSBaseItem.h"
 
 int32 UDSWeaponData::GetItemMaxAmmoInClip() const
 {
-	return GetCachedWeaponItem() != nullptr ? GetCachedWeaponItem()->MaxAmmoInClip : 0;
+	return GetCachedWeaponItem().MaxAmmoInClip;
 }
 
 EDSAmmoType UDSWeaponData::GetItemAmmoType() const
 {
-	return GetCachedWeaponItem() != nullptr ? GetCachedWeaponItem()->AmmoType : EDSAmmoType::Pistol;
+	return GetCachedWeaponItem().AmmoType;
 }
 
 void UDSWeaponData::Initialize(UDSBaseItem* InItem, int32 InCount, FIntPoint InPosition)
@@ -21,14 +19,14 @@ void UDSWeaponData::Initialize(UDSBaseItem* InItem, int32 InCount, FIntPoint InP
 	{
 		Item = InItem;
 		Count = 1;
-		CurrentAmmoInClip = FMath::Clamp(InCount, 1, Item->GetMaxStackAmount());
+		CurrentAmmoInClip = FMath::Clamp(InCount, 1, GetItemMaxAmmoInClip());
 		Position = InPosition;
 	}
 }
 
 bool UDSWeaponData::IsFull() const
 {
-	return GetCachedWeaponItem() != nullptr ? GetCachedWeaponItem()->MaxAmmoInClip == CurrentAmmoInClip : true;
+	return GetCachedWeaponItem().MaxAmmoInClip == CurrentAmmoInClip;
 }
 
 bool UDSWeaponData::CanDrop() const
@@ -60,9 +58,9 @@ void UDSWeaponData::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 }
 #endif
 
-FDSWeaponItemData* UDSWeaponData::GetCachedWeaponItem() const
+FDSWeaponItemData UDSWeaponData::GetCachedWeaponItem() const
 {
-	if (CachedWeaponItem != nullptr)
+	if (CachedWeaponItem.MaxAmmoInClip != 0)
 	{
 		return CachedWeaponItem;
 	}
@@ -70,13 +68,14 @@ FDSWeaponItemData* UDSWeaponData::GetCachedWeaponItem() const
 	if (IsValid(Item))
 	{
 		TOptional<FInstancedStruct> WeaponItem = Item->GetProperty(FDSWeaponItemData::StaticStruct());
+		
 		if (WeaponItem.IsSet())
 		{
-			CachedWeaponItem = const_cast<FDSWeaponItemData*>(WeaponItem->GetPtr<FDSWeaponItemData>());
+			CachedWeaponItem = WeaponItem->GetMutable<FDSWeaponItemData>();
 		}
 		
 		return CachedWeaponItem;
 	}
 	
-	return nullptr;
+	return FDSWeaponItemData();
 }
