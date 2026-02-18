@@ -17,6 +17,10 @@ public:
 	
 	TOptional<FDSCraftRecipe> GetCraftRecipe(UDSBaseItem* FirstItem, UDSBaseItem* SecondItem) const;
 protected:
-	UPROPERTY(EditDefaultsOnly, Config, Category = "DefaultCraftRecipes")
-	TArray<FDSCraftRecipe> Crafts;
+	UPROPERTY(Config, BlueprintReadOnly, EditDefaultsOnly, Category = "General")
+	TArray<FDSCraftRecipe> DefaultCraftRecipes;
+	
+	UPROPERTY(Config, BlueprintReadOnly, EditDefaultsOnly, Category = "General", meta = (RowType = "DSDocument"))
+	TSoftObjectPtr<UDataTable> Documents;
 };
+ 

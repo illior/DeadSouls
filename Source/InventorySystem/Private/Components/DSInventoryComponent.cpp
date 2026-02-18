@@ -39,6 +39,17 @@ UDSItemData* UDSInventoryComponent::GetItemByPosition(FIntPoint InPosition) cons
 	return nullptr;
 }
 
+void UDSInventoryComponent::TryAddDocument(const FDataTableRowHandle InHandle)
+{
+	FName RowName = InHandle.RowName;
+	FDSDocument* Document = InHandle.GetRow<FDSDocument>(TEXT(""));
+	if (Document != nullptr && !Documents.Contains(RowName))
+	{
+		Documents.Add(RowName);
+		OnDocumentAdded.Broadcast(RowName, *Document);
+	}
+}
+
 void UDSInventoryComponent::TryAddNewItem(UDSItemData* InItemData)
 {
 	if (IsValid(InItemData) && IsValid(InItemData->GetItem()) && !Items.Contains(InItemData))

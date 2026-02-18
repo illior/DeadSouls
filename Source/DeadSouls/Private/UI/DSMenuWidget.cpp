@@ -61,7 +61,11 @@ void UDSMenuWidget::CloseMenu()
 
 void UDSMenuWidget::InFocus_Implementation()
 {
-	SetButtonState(CurrentIndex, EDSButtonState::Hovered);
+	if (Buttons.IsValidIndex(CurrentIndex))
+	{
+		Buttons[CurrentIndex]->SetState(EDSButtonState::Hovered);
+		OnButtonSelected(Buttons[CurrentIndex]);
+	}
 }
 
 void UDSMenuWidget::OutFocus_Implementation()
@@ -95,11 +99,12 @@ void UDSMenuWidget::MoveVertical_Implementation(int32 Offset)
 
 		return;
 	}
+ 
+	SetButtonSelected(Buttons[NextIndex]);
+	//Buttons[CurrentIndex]->SetState(EDSButtonState::Base);
+	//Buttons[NextIndex]->SetState(EDSButtonState::Hovered);
 
-	Buttons[CurrentIndex]->SetState(EDSButtonState::Base);
-	Buttons[NextIndex]->SetState(EDSButtonState::Hovered);
-
-	CurrentIndex = NextIndex;
+	//CurrentIndex = NextIndex;
 }
 
 void UDSMenuWidget::MoveHorizontal_Implementation(int32 Offset)
@@ -119,6 +124,8 @@ void UDSMenuWidget::SetButtonSelected(UDSButtonWidget* InButton)
 		SetButtonState(ButtonIndex, EDSButtonState::Hovered);
 
 		CurrentIndex = ButtonIndex;
+		
+		OnButtonSelected(InButton);
 	}
 }
 

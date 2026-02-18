@@ -7,6 +7,7 @@
 
 class UDSBaseItem;
 class UDSItemData;
+struct FDSDocument;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDSOnInventoryInitializedSignature);
 
@@ -17,6 +18,23 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDSOnInventoryItemCreatedSignature, 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDSOnInventoryItemRemovedSignature, UDSItemData*, InItemData);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDSOnInventoryItemUpdatedSignature, UDSItemData*, InItemData);
+
+USTRUCT(BlueprintType)
+struct FDSDocument : public FTableRowBase
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory Document")
+	FText Title;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory Document", meta = (MultiLine = "true"))
+	TArray<FText> Pages;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory Document")
+	TSoftObjectPtr<UTexture2D> Item;
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDSOnInventoryDocumentAddedSignature, FName, RowName, FDSDocument, Document);
 
 UENUM(BlueprintType)
 enum class EDSSlotState : uint8
@@ -75,7 +93,7 @@ struct FDSWeaponItemData : public FDSItemInstancedProperty
 	EDSAmmoType AmmoType = EDSAmmoType::Pistol;
 };
 
-USTRUCT()
+USTRUCT(Blueprintable)
 struct FDSCraftRecipe
 {
 	GENERATED_BODY()

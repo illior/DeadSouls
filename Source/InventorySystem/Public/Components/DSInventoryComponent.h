@@ -24,6 +24,9 @@ public:
 	FDSOnInventoryInitializedSignature OnInventoryInitialized;
 	
 	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
+	FDSOnInventoryDocumentAddedSignature OnDocumentAdded;
+	
+	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
 	FDSOnInventorySlotsIncrementedSignature  OnSlotsIncremented;
 	
 	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
@@ -42,6 +45,9 @@ public:
 	int32 GetCurrentSlotsCount() const { return CurrentSlotsCount; }
 	
 	UDSItemData* GetItemByPosition(FIntPoint InPosition) const;
+	
+	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
+	void TryAddDocument(const FDataTableRowHandle InHandle);
 	
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	void TryAddNewItem(UDSItemData* InItemData);
@@ -65,6 +71,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Instanced, Category = "InventorySystem")
 	TArray<TObjectPtr<UDSItemData>> Items;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "InventorySystem")
+	TArray<FName> Documents; 
 	
 	void SetSlotState(const FIntPoint& InPosition, const EDSSlotState& InState);
 	

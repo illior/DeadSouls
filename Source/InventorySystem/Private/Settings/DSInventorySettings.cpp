@@ -12,7 +12,7 @@ TOptional<FDSCraftRecipe> UDSInventorySettings::GetCraftRecipe(UDSBaseItem* Firs
 {
 	TOptional<FDSCraftRecipe> Result;
 	
-	for (const FDSCraftRecipe& Recipe : Crafts)
+	for (const FDSCraftRecipe& Recipe : DefaultCraftRecipes)
 	{
 		if ((Recipe.FirstItem == FirstItem && Recipe.SecondItem == SecondItem) ||
 			(Recipe.FirstItem == SecondItem && Recipe.SecondItem == FirstItem))

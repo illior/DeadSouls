@@ -18,6 +18,9 @@ class DEADSOULS_API ADSPlayerController : public APlayerController
 public:
 	ADSPlayerController();
 	
+	UPROPERTY(BlueprintReadWrite, Category = "DeadSouls")
+	int32 InputInventoryPage = 0;
+	
 	UFUNCTION(BlueprintCallable)
 	void PauseGame();
 	UFUNCTION(BlueprintCallable)

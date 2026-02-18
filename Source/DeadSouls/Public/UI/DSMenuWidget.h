@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	virtual void CloseMenu();
 	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Menu")
+	void OnButtonSelected(UDSButtonWidget* Button);
+	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Menu", meta = (ForceAsFunction))
 	void InFocus();
 	virtual void InFocus_Implementation();

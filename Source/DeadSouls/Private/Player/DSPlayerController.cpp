@@ -71,8 +71,8 @@ void ADSPlayerController::SetupInputComponent()
 	
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		EnhancedInputComponent->BindAction(OpenPauseMenuAction, ETriggerEvent::Started, this, &ADSPlayerController::InputPause);
-		EnhancedInputComponent->BindAction(OpenInventoryAction, ETriggerEvent::Started, this, &ADSPlayerController::InputInventory);
+		EnhancedInputComponent->BindAction(OpenPauseMenuAction, ETriggerEvent::Triggered, this, &ADSPlayerController::InputPause);
+		EnhancedInputComponent->BindAction(OpenInventoryAction, ETriggerEvent::Triggered, this, &ADSPlayerController::InputInventory);
 	}
 }
 
@@ -106,6 +106,8 @@ void ADSPlayerController::InputPause(const FInputActionInstance& Value)
 
 void ADSPlayerController::InputInventory(const FInputActionInstance& Value)
 {
+	InputInventoryPage = FMath::RoundToInt(Value.GetValue().Get<float>()) - 1;
+	
 	PauseGame();
 	
 	ADSGameHUD* GameHUD =  GetHUD<ADSGameHUD>();
