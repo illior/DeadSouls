@@ -11,7 +11,7 @@ UDSFooterWidget* UDSInputWidget::GetFooterWidget() const
 void UDSInputWidget::Open()
 {
 	SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	InputComponent ? RegisterInputComponent() : InitializeInputComponent();
+	RegisterInputComponent();
 	
 	OnOpen();
 }
