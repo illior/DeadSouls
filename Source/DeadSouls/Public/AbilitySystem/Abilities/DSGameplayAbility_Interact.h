@@ -39,7 +39,7 @@ FORCEINLINE uint32 GetTypeHash(const FDSInteractData& Thing)
 	return GetTypeHash(Thing.InteractActor);
 }
 
-UCLASS()
+UCLASS(Abstract)
 class DEADSOULS_API UDSGameplayAbility_Interact : public UDSGameplayAbility
 {
 	GENERATED_BODY()

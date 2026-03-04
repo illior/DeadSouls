@@ -21,7 +21,7 @@ public:
 	UTexture2D* GetIcon() const { return Icon; }
 	
 	TOptional<FInstancedStruct> GetProperty(const UScriptStruct* InScriptStruct) const;
-	bool HasProperty(const UScriptStruct* InScriptStruct) const;
+	bool HasProperty(const UScriptStruct* InScriptStruct, const bool bCheckForChild = false) const;
 	
 	virtual FString ToString() const;
 	
@@ -48,6 +48,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Item")
 	TObjectPtr<UTexture2D> Icon = nullptr;
 	
-	UPROPERTY(EditAnywhere, meta = (BaseStruct = "/Script/InventorySystem.DSItemInstancedProperty", ExcludeBaseStruct, ShowTreeView), Category = "Base Item")
+	UPROPERTY(EditDefaultsOnly, meta = (BaseStruct = "/Script/InventorySystem.DSItemInstancedProperty", ExcludeBaseStruct, ShowTreeView), Category = "Base Item")
 	TArray<FInstancedStruct> ItemProperties;
 };

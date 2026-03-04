@@ -39,9 +39,9 @@ TOptional<FInstancedStruct> UDSItemData::GetItemProperty(const UScriptStruct* In
 	return IsValid(Item) ? Item->GetProperty(InScriptStruct) : TOptional<FInstancedStruct>();
 }
 
-bool UDSItemData::ItemHasProperty(const UScriptStruct* InScriptStruct) const
+bool UDSItemData::ItemHasProperty(const UScriptStruct* InScriptStruct, const bool bCheckForChild) const
 {
-	return IsValid(Item) ? Item->HasProperty(InScriptStruct) : false;
+	return IsValid(Item) ? Item->HasProperty(InScriptStruct, bCheckForChild) : false;
 }
 
 bool UDSItemData::SetPosition(const FIntPoint InPosition)
@@ -54,8 +54,22 @@ bool UDSItemData::SetPosition(const FIntPoint InPosition)
 	else
 	{
 		Position = InPosition;
-		OnItemUpdated.Broadcast(this);
 		
+		return true;
+	}
+}
+
+bool UDSItemData::SetCount(const int32 InCount)
+{
+	UDSInventoryComponent* InventoryComponent = Cast<UDSInventoryComponent>(GetOuter());
+	if (IsValid(InventoryComponent))
+	{
+		return InventoryComponent->TrySetItemCount(this, Count);
+	}
+	else
+	{
+		Count = FMath::Clamp(InCount, 1, Item->GetMaxStackAmount());
+	
 		return true;
 	}
 }

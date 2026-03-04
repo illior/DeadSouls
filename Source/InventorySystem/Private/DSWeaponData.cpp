@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "DSWeaponData.h"
+#include "Components/DSInventoryComponent.h"
 #include "Items/DSBaseItem.h"
 
 int32 UDSWeaponData::GetItemMaxAmmoInClip() const
@@ -11,6 +12,21 @@ int32 UDSWeaponData::GetItemMaxAmmoInClip() const
 EDSAmmoType UDSWeaponData::GetItemAmmoType() const
 {
 	return GetCachedWeaponItem().AmmoType;
+}
+
+bool UDSWeaponData::SetCount(const int32 InCount)
+{
+	UDSInventoryComponent* InventoryComponent = Cast<UDSInventoryComponent>(GetOuter());
+	if (IsValid(InventoryComponent))
+	{
+		return InventoryComponent->TrySetItemCount(this, Count);
+	}
+	else
+	{
+		CurrentAmmoInClip = FMath::Clamp(InCount, 0, GetItemMaxAmmoInClip());
+	
+		return true;
+	}
 }
 
 void UDSWeaponData::Initialize(UDSBaseItem* InItem, int32 InCount, FIntPoint InPosition)

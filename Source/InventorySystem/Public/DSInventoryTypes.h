@@ -59,6 +59,18 @@ enum class EDSAmmoType : uint8
 	Custom3
 };
 
+UENUM(BlueprintType)
+enum class EDSWeaponFastAccessIndex : uint8
+{
+	None = 0,
+	First = 1,
+	Second = 2,
+	Third = 3,
+	Fourth = 4
+};
+
+ENUM_RANGE_BY_FIRST_AND_LAST(EDSWeaponFastAccessIndex, EDSWeaponFastAccessIndex::First, EDSWeaponFastAccessIndex::Fourth);
+
 USTRUCT()
 struct FDSItemInstancedProperty
 {

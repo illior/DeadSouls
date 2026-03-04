@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DeadSouls/Public/Player/DSPlayerController.h"
+#include "Player/DSPlayerController.h"
 #include "UI/DSGameHUD.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"

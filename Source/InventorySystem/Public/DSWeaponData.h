@@ -12,16 +12,19 @@ class INVENTORYSYSTEM_API UDSWeaponData : public UDSItemData
 {
 	GENERATED_BODY()
 	
+	friend class UDSInventoryComponent;
 public:
-	int32 GetCurrentAmmoInClip() const { return CurrentAmmoInClip; };
-	int32 GetFastAccessIndex() const { return FastAccessIndex; };
-	bool GetIsEquip() const { return bIsEquip; };
-
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	int32 GetItemMaxAmmoInClip() const;
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	EDSAmmoType GetItemAmmoType() const;
 
+	int32 GetCurrentAmmoInClip() const { return CurrentAmmoInClip; };
+	EDSWeaponFastAccessIndex GetFastAccessIndex() const { return FastAccessIndex; };
+	bool GetIsEquip() const { return bIsEquip; };
+	
+	bool SetCount(const int32 InCount);
+	
 	virtual void Initialize(UDSBaseItem* InItem, int32 InCount, FIntPoint InPosition) override;
 
 	virtual bool IsFull() const override;
@@ -36,7 +39,7 @@ protected:
 	int32 CurrentAmmoInClip = 1;
 
 	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Weapon Data")
-	int32 FastAccessIndex = -1;
+	EDSWeaponFastAccessIndex FastAccessIndex = EDSWeaponFastAccessIndex::None;
 	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Weapon Data")
 	bool bIsEquip = false;
 	

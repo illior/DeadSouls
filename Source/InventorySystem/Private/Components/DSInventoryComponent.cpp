@@ -39,6 +39,16 @@ UDSItemData* UDSInventoryComponent::GetItemByPosition(FIntPoint InPosition) cons
 	return nullptr;
 }
 
+UDSWeaponData* UDSInventoryComponent::GetFastAccessWeapon(EDSWeaponFastAccessIndex FastAccessIndex) const
+{
+	return FastAccessWeapons.Contains(FastAccessIndex) ? FastAccessWeapons[FastAccessIndex] : nullptr;
+}
+
+UDSWeaponData* UDSInventoryComponent::GetEquippedWeapon() const
+{
+	return EquippedWeapon;
+}
+
 void UDSInventoryComponent::TryAddDocument(const FDataTableRowHandle InHandle)
 {
 	FName RowName = InHandle.RowName;
@@ -70,7 +80,7 @@ bool UDSInventoryComponent::TryAddItem(UDSItemData* InItemData)
 	if (InItemData->GetItemSize() == 1 && GetSlotState(InItemData->GetPosition()) == EDSSlotState::Void)
 	{
 		AddItem(InItemData);
-		InItemData->OnItemUpdated.Broadcast(InItemData);
+		OnItemUpdated.Broadcast(InItemData);
 		
 		return true;
 	}
@@ -78,7 +88,7 @@ bool UDSInventoryComponent::TryAddItem(UDSItemData* InItemData)
 	if (InItemData->GetItemSize() == 2 && GetSlotState(InItemData->GetPosition()) == EDSSlotState::Void && GetSlotState(InItemData->GetPosition() + FIntPoint(1, 0)) == EDSSlotState::Void)
 	{
 		AddItem(InItemData);
-		InItemData->OnItemUpdated.Broadcast(InItemData);
+		OnItemUpdated.Broadcast(InItemData);
 		
 		return true;
 	}
@@ -98,7 +108,7 @@ bool UDSInventoryComponent::TryAddItem(UDSItemData* InItemData)
 			CraftItems(ItemInPosition, InItemData);
 			
 			InItemData->Count = 0;
-			InItemData->OnItemUpdated.Broadcast(InItemData);
+			OnItemUpdated.Broadcast(InItemData);
 			
 			return true;
 		}
@@ -139,7 +149,7 @@ bool UDSInventoryComponent::TrySetItemPosition(UDSItemData* InItemData, FIntPoin
 			SetSlotState(InPosition, EDSSlotState::Item);
 			InItemData->Position = InPosition;
 			
-			InItemData->OnItemUpdated.Broadcast(InItemData);
+			OnItemUpdated.Broadcast(InItemData);
 			UE_LOG(LogInventoryComponent, Display, TEXT("Item moved %s"), *InItemData->ToString());
 			
 			return true;
@@ -167,10 +177,10 @@ bool UDSInventoryComponent::TrySetItemPosition(UDSItemData* InItemData, FIntPoin
 				ItemInPosition->Position = InItemData->Position;
 				InItemData->Position = InPosition;
 
-				ItemInPosition->OnItemUpdated.Broadcast(ItemInPosition);
+				OnItemUpdated.Broadcast(ItemInPosition);
 				UE_LOG(LogInventoryComponent, Display, TEXT("Item moved %s"), *ItemInPosition->ToString());
 				
-				InItemData->OnItemUpdated.Broadcast(InItemData);
+				OnItemUpdated.Broadcast(InItemData);
 				UE_LOG(LogInventoryComponent, Display, TEXT("Item moved %s"), *InItemData->ToString());
 				
 				return true;
@@ -187,7 +197,7 @@ bool UDSInventoryComponent::TrySetItemPosition(UDSItemData* InItemData, FIntPoin
 			SetSlotState(InPosition + FIntPoint(1, 0), EDSSlotState::Item);
 			InItemData->Position = InPosition;
 			
-			InItemData->OnItemUpdated.Broadcast(InItemData);
+			OnItemUpdated.Broadcast(InItemData);
 			UE_LOG(LogInventoryComponent, Display, TEXT("Item moved %s"), *InItemData->ToString());
 
 			return true;
@@ -199,7 +209,7 @@ bool UDSInventoryComponent::TrySetItemPosition(UDSItemData* InItemData, FIntPoin
 			SetSlotState(InPosition + FIntPoint(1, 0), EDSSlotState::Item);
 			InItemData->Position = InPosition;
 			
-			InItemData->OnItemUpdated.Broadcast(InItemData);
+			OnItemUpdated.Broadcast(InItemData);
 			UE_LOG(LogInventoryComponent, Display, TEXT("Item moved %s"), *InItemData->ToString());
 
 			return true;
@@ -211,7 +221,7 @@ bool UDSInventoryComponent::TrySetItemPosition(UDSItemData* InItemData, FIntPoin
 			SetSlotState(InPosition, EDSSlotState::Item);
 			InItemData->Position = InPosition;
 			
-			InItemData->OnItemUpdated.Broadcast(InItemData);
+			OnItemUpdated.Broadcast(InItemData);
 			UE_LOG(LogInventoryComponent, Display, TEXT("Item moved %s"), *InItemData->ToString());
 
 			return true;
@@ -223,10 +233,10 @@ bool UDSInventoryComponent::TrySetItemPosition(UDSItemData* InItemData, FIntPoin
 			ItemInPosition->Position = InItemData->Position;
 			InItemData->Position = InPosition;
 
-			ItemInPosition->OnItemUpdated.Broadcast(ItemInPosition);
+			OnItemUpdated.Broadcast(ItemInPosition);
 			UE_LOG(LogInventoryComponent, Display, TEXT("Item moved %s"), *ItemInPosition->ToString());
 			
-			InItemData->OnItemUpdated.Broadcast(InItemData);
+			OnItemUpdated.Broadcast(InItemData);
 			UE_LOG(LogInventoryComponent, Display, TEXT("Item moved %s"), *InItemData->ToString());
 			
 			return true;
@@ -234,6 +244,105 @@ bool UDSInventoryComponent::TrySetItemPosition(UDSItemData* InItemData, FIntPoin
 	}
 	
 	return false;
+}
+
+bool UDSInventoryComponent::TrySetItemCount(UDSItemData* InItemData, int32 InCount)
+{
+	if (!Items.Contains(InItemData))
+	{
+		return false;
+	}
+	
+	if (InItemData->IsA<UDSWeaponData>())
+	{
+		UDSWeaponData* WeaponData = Cast<UDSWeaponData>(InItemData);
+		WeaponData->CurrentAmmoInClip = FMath::Clamp(InCount, 0, WeaponData->GetItemMaxAmmoInClip());
+	}
+	else if (InCount < 1)
+	{
+		TryRemoveItem(InItemData);
+		return true;
+	}
+	else
+	{
+		InItemData->Count = FMath::Clamp(InCount, 1, InItemData->GetItemMaxStackAmount());
+	}
+	
+	OnItemUpdated.Broadcast(InItemData);
+	
+	return true;
+}
+
+bool UDSInventoryComponent::SetFastAccessWeapon(UDSWeaponData* WeaponData, EDSWeaponFastAccessIndex FastAccessIndex)
+{
+	if (!Items.Contains(WeaponData) || WeaponData->FastAccessIndex == FastAccessIndex)
+	{
+		return false;
+	}
+	
+	if (FastAccessIndex == EDSWeaponFastAccessIndex::None)
+	{
+		FastAccessWeapons[FastAccessIndex] = nullptr;
+		
+		WeaponData->FastAccessIndex = EDSWeaponFastAccessIndex::None;
+		OnItemUpdated.Broadcast(WeaponData);
+		
+		return true;
+	}
+	
+	if (WeaponData->FastAccessIndex != EDSWeaponFastAccessIndex::None)
+	{
+		if (IsValid(FastAccessWeapons[FastAccessIndex]))
+		{
+			FastAccessWeapons[FastAccessIndex]->FastAccessIndex = WeaponData->FastAccessIndex;
+			FastAccessWeapons[WeaponData->FastAccessIndex] = FastAccessWeapons[FastAccessIndex];
+		
+			OnItemUpdated.Broadcast(FastAccessWeapons[FastAccessIndex]);
+		}
+		else
+		{
+			FastAccessWeapons[WeaponData->FastAccessIndex] = nullptr;
+		}
+	} else if (IsValid(FastAccessWeapons[FastAccessIndex]))
+	{
+		FastAccessWeapons[FastAccessIndex]->FastAccessIndex = EDSWeaponFastAccessIndex::None;
+		FastAccessWeapons[FastAccessIndex] = nullptr;
+		
+		OnItemUpdated.Broadcast(FastAccessWeapons[FastAccessIndex]);
+	}
+	
+	WeaponData->FastAccessIndex = FastAccessIndex;
+	FastAccessWeapons[FastAccessIndex] = WeaponData;
+	
+	OnItemUpdated.Broadcast(FastAccessWeapons[FastAccessIndex]);
+	
+	return false;
+}
+
+bool UDSInventoryComponent::SetEquippedWeapon(UDSWeaponData* WeaponData)
+{
+	if (EquippedWeapon == WeaponData)
+	{
+		return false;
+	}
+	
+	if (IsValid(EquippedWeapon))
+	{
+		EquippedWeapon->bIsEquip = false;
+		OnItemUpdated.Broadcast(EquippedWeapon);
+		
+		EquippedWeapon = nullptr;
+	}
+	
+	if (IsValid(WeaponData) && Items.Contains(WeaponData))
+	{
+		WeaponData->bIsEquip = true;
+		EquippedWeapon = WeaponData;
+		
+		OnItemUpdated.Broadcast(EquippedWeapon);
+	}
+	
+	return true;
 }
 
 bool UDSInventoryComponent::AddSlots(int32 InCount)
@@ -320,22 +429,21 @@ void UDSInventoryComponent::CombineItems(UDSItemData* ItemInPosition, UDSItemDat
 		MovingItem->Count = ItemInPosition->GetCount() + MovingItem->GetCount() - ItemInPosition->GetItemMaxStackAmount();
 		ItemInPosition->Count = ItemInPosition->GetItemMaxStackAmount();
 
-		ItemInPosition->OnItemUpdated.Broadcast(ItemInPosition);
-		MovingItem->OnItemUpdated.Broadcast(MovingItem);
+		OnItemUpdated.Broadcast(ItemInPosition);
+		if (MovingItem->GetOuter() == this)
+		{
+			OnItemUpdated.Broadcast(MovingItem);
+		}
 	}
 	else
 	{
 		ItemInPosition->Count = ItemInPosition->GetCount() + MovingItem->GetCount();
 		MovingItem->Count = 0;
 
-		ItemInPosition->OnItemUpdated.Broadcast(ItemInPosition);
+		OnItemUpdated.Broadcast(ItemInPosition);
 		if (MovingItem->GetOuter() == this)
 		{
 			TryRemoveItem(MovingItem);
-		}
-		else
-		{
-			MovingItem->OnItemUpdated.Broadcast(MovingItem);
 		}
 	}
 }
@@ -371,6 +479,13 @@ void UDSInventoryComponent::Initialize()
 		{
 			SetSlotState(Items[i]->GetPosition() + FIntPoint(1, 0), EDSSlotState::Item);
 		}
+	}
+	
+	FastAccessWeapons.Empty();
+	
+	for (EDSWeaponFastAccessIndex FastAccessIndex : TEnumRange<EDSWeaponFastAccessIndex>())
+	{
+		FastAccessWeapons.Add(FastAccessIndex, nullptr);
 	}
 	
 	UE_LOG(LogInventoryComponent, Display, TEXT("Inventory component initialized"));

@@ -17,9 +17,6 @@ class INVENTORYSYSTEM_API UDSItemData : public UObject
 	
 	friend class UDSInventoryComponent;
 public:
-	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
-	FDSOnInventoryItemUpdatedSignature OnItemUpdated;
-	
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	FText GetItemName() const;
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
@@ -34,7 +31,7 @@ public:
 	UTexture2D* GetItemIcon() const;
 	
 	TOptional<FInstancedStruct> GetItemProperty(const UScriptStruct* InScriptStruct) const;
-	bool ItemHasProperty(const UScriptStruct* InScriptStruct) const;
+	bool ItemHasProperty(const UScriptStruct* InScriptStruct, const bool bCheckForChild = false) const;
 	
 	template<class T>
 	T* GetItem() const { return Cast<T>(Item); };
@@ -44,7 +41,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	bool SetPosition(const FIntPoint InPosition);
-
+	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
+	bool SetCount(const int32 InCount);
+	
 	virtual void Initialize(UDSBaseItem* InItem, int32 InCount, FIntPoint InPosition);
 
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")

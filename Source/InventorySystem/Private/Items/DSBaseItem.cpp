@@ -19,11 +19,11 @@ TOptional<FInstancedStruct> UDSBaseItem::GetProperty(const UScriptStruct* InScri
 	return Result;
 }
 
-bool UDSBaseItem::HasProperty(const UScriptStruct* InScriptStruct) const
+bool UDSBaseItem::HasProperty(const UScriptStruct* InScriptStruct, const bool bCheckForChild) const
 {
 	for (int32 i = 0; i < ItemProperties.Num(); i++)
 	{
-		if (ItemProperties[i].GetScriptStruct() == InScriptStruct)
+		if (ItemProperties[i].GetScriptStruct() == InScriptStruct || (bCheckForChild && InScriptStruct->IsChildOf(ItemProperties[i].GetScriptStruct())))
 		{
 			return true;
 		}

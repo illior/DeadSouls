@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DeadSouls/Public/Character/DSCharacter.h"
+#include "Character/DSCharacter.h"
 #include "Player/DSPlayerState.h"
 
 #include "Components/DSInventoryComponent.h"

@@ -11,6 +11,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogInventoryComponent, Log, All);
 
 class UDSBaseItem;
 class UDSItemData;
+class UDSWeaponData;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class INVENTORYSYSTEM_API UDSInventoryComponent : public UActorComponent
@@ -36,6 +37,8 @@ public:
 	FDSOnInventoryItemCreatedSignature  OnItemCreated;
 	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
 	FDSOnInventoryItemRemovedSignature  OnItemRemoved;
+	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
+	FDSOnInventoryItemUpdatedSignature OnItemUpdated;
 	
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	EDSSlotState GetSlotState(FIntPoint InPosition) const;
@@ -45,6 +48,9 @@ public:
 	int32 GetCurrentSlotsCount() const { return CurrentSlotsCount; }
 	
 	UDSItemData* GetItemByPosition(FIntPoint InPosition) const;
+	UDSWeaponData* GetFastAccessWeapon(EDSWeaponFastAccessIndex FastAccessIndex) const;
+	UDSWeaponData* GetEquippedWeapon() const;
+	
 	
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	void TryAddDocument(const FDataTableRowHandle InHandle);
@@ -58,6 +64,13 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	bool TrySetItemPosition(UDSItemData* InItemData, FIntPoint InPosition);
+	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
+	bool TrySetItemCount(UDSItemData* InItemData, int32 InCount);
+	
+	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
+	bool SetFastAccessWeapon(UDSWeaponData* WeaponData, EDSWeaponFastAccessIndex FastAccessIndex);
+	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
+	bool SetEquippedWeapon(UDSWeaponData* WeaponData);
 	
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	bool AddSlots(int32 InCount);
@@ -71,6 +84,12 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Instanced, Category = "InventorySystem")
 	TArray<TObjectPtr<UDSItemData>> Items;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "InventorySystem")
+	TObjectPtr<UDSWeaponData> EquippedWeapon;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "InventorySystem")
+	TMap<EDSWeaponFastAccessIndex, TObjectPtr<UDSWeaponData>> FastAccessWeapons;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "InventorySystem")
 	TArray<FName> Documents; 
