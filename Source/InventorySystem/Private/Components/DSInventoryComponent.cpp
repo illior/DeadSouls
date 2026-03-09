@@ -342,6 +342,7 @@ bool UDSInventoryComponent::SetEquippedWeapon(UDSWeaponData* WeaponData)
 		OnItemUpdated.Broadcast(EquippedWeapon);
 	}
 	
+	OnWeaponEquipped.Broadcast(EquippedWeapon);
 	return true;
 }
 
@@ -458,7 +459,7 @@ void UDSInventoryComponent::CraftItems(UDSItemData* ItemInPosition, UDSItemData*
 		
 		if (CraftRecipe.IsSet())
 		{
-			UDSItemData* NewItemData = CraftRecipe->Result->HasProperty(FDSWeaponItemData::StaticStruct()) ? NewObject<UDSWeaponData>(this) : NewObject<UDSItemData>(this);
+			UDSItemData* NewItemData = CraftRecipe->Result->HasProperty(FDSWeaponProperty::StaticStruct(), true) ? NewObject<UDSWeaponData>(this) : NewObject<UDSItemData>(this);
 			NewItemData->Initialize(CraftRecipe->Result, CraftRecipe->Count, ItemInPosition->GetPosition());
 
 			TryRemoveItem(ItemInPosition);

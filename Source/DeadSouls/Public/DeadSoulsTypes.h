@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DSInventoryTypes.h"
 #include "DeadSoulsTypes.generated.h"
 
 class UDSMenuWidget;
@@ -20,4 +21,16 @@ enum class EDSButtonState : uint8
 	Hovered,
 	Pressed,
 	Disabled
+};
+
+USTRUCT(Blueprintable)
+struct FDSWeaponGameplayProperty : public FDSWeaponProperty
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UAnimInstance> AnimLayer;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<class UDSAbilitySet> AbilitySet;
 };

@@ -6,12 +6,16 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
+#include "DeadSoulsTypes.h"
 #include "DSCharacter.generated.h"
 
 class UDSInventoryComponent;
 class UDSAbilitySystemComponent;
 class USpringArmComponent;
 class UCameraComponent;
+
+class UDSWeaponData;
+class UDSAbilitySet;
 
 class UInputAction;
 struct FInputActionInstance;
@@ -37,6 +41,12 @@ public:
 	//~ End APawn Interface
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Character")
+	TSubclassOf<UAnimInstance> UnarmedAnimInstance;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Character")
+	TArray<TObjectPtr<UDSAbilitySet>> DefaultAbilitySets;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Input")
 	TObjectPtr<UInputAction> LookAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Input")
@@ -49,6 +59,9 @@ protected:
 	virtual void BeginPlay() override;
 	//~ End AActor Interface
 
+	UFUNCTION()
+	void EquipWeapon(UDSWeaponData* InWeaponData);
+	
 	void InputLook(const FInputActionInstance& Value);
 	void InputMove(const FInputActionInstance& Value);
 

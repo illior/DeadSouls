@@ -36,7 +36,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Item")
 	FText DisplayDescription = FText::FromString("Item Description");
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Item")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Item", meta=(InlineEditConditionToggle))
 	bool bCanStack = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Item", meta = (ClampMin = "1", ClampMax = "400", EditCondition = "bCanStack"))

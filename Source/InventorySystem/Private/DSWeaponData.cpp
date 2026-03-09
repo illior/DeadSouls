@@ -31,7 +31,7 @@ bool UDSWeaponData::SetCount(const int32 InCount)
 
 void UDSWeaponData::Initialize(UDSBaseItem* InItem, int32 InCount, FIntPoint InPosition)
 {
-	if (IsValid(InItem) && InItem->HasProperty(FDSWeaponItemData::StaticStruct()))
+	if (IsValid(InItem) && InItem->HasProperty(FDSWeaponProperty::StaticStruct(), true))
 	{
 		Item = InItem;
 		Count = 1;
@@ -55,7 +55,7 @@ void UDSWeaponData::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	
-	if (PropertyChangedEvent.GetMemberPropertyName().IsEqual(TEXT("Item")) && IsValid(Item) && !Item->HasProperty(FDSWeaponItemData::StaticStruct()))
+	if (PropertyChangedEvent.GetMemberPropertyName().IsEqual(TEXT("Item")) && IsValid(Item) && !Item->HasProperty(FDSWeaponProperty::StaticStruct(), true))
 	{
 		Item = nullptr;
 		return;
@@ -63,10 +63,10 @@ void UDSWeaponData::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 	
 	if (PropertyChangedEvent.GetMemberPropertyName().IsEqual(TEXT("CurrentAmmoInClip")) && IsValid(Item))
 	{
-		TOptional<FInstancedStruct> WeaponItem = Item->GetProperty(FDSWeaponItemData::StaticStruct());
+		TOptional<FInstancedStruct> WeaponItem = Item->GetProperty(FDSWeaponProperty::StaticStruct());
 		if (WeaponItem.IsSet())
 		{
-			const FDSWeaponItemData* WeaponItemData = WeaponItem->GetPtr<FDSWeaponItemData>();
+			const FDSWeaponProperty* WeaponItemData = WeaponItem->GetPtr<FDSWeaponProperty>();
 		
 			CurrentAmmoInClip = FMath::Clamp(CurrentAmmoInClip, 0, WeaponItemData->MaxAmmoInClip);
 		}
@@ -74,7 +74,7 @@ void UDSWeaponData::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 }
 #endif
 
-FDSWeaponItemData UDSWeaponData::GetCachedWeaponItem() const
+FDSWeaponProperty UDSWeaponData::GetCachedWeaponItem() const
 {
 	if (CachedWeaponItem.MaxAmmoInClip != 0)
 	{
@@ -83,15 +83,15 @@ FDSWeaponItemData UDSWeaponData::GetCachedWeaponItem() const
 	
 	if (IsValid(Item))
 	{
-		TOptional<FInstancedStruct> WeaponItem = Item->GetProperty(FDSWeaponItemData::StaticStruct());
+		TOptional<FInstancedStruct> WeaponItem = Item->GetProperty(FDSWeaponProperty::StaticStruct());
 		
 		if (WeaponItem.IsSet())
 		{
-			CachedWeaponItem = WeaponItem->GetMutable<FDSWeaponItemData>();
+			CachedWeaponItem = WeaponItem->GetMutable<FDSWeaponProperty>();
 		}
 		
 		return CachedWeaponItem;
 	}
 	
-	return FDSWeaponItemData();
+	return FDSWeaponProperty();
 }

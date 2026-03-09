@@ -43,7 +43,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Weapon Data")
 	bool bIsEquip = false;
 	
-	FDSWeaponItemData GetCachedWeaponItem() const;
+	FDSWeaponProperty GetCachedWeaponItem() const;
 private:
-	mutable FDSWeaponItemData CachedWeaponItem = FDSWeaponItemData();
+	mutable FDSWeaponProperty CachedWeaponItem = FDSWeaponProperty();
 };

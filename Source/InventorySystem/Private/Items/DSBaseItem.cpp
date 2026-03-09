@@ -8,7 +8,7 @@ TOptional<FInstancedStruct> UDSBaseItem::GetProperty(const UScriptStruct* InScri
 	
 	for (int32 i = 0; i < ItemProperties.Num(); i++)
 	{
-		if (ItemProperties[i].GetScriptStruct() == InScriptStruct)
+		if (ItemProperties[i].GetScriptStruct() == InScriptStruct || ItemProperties[i].GetScriptStruct()->IsChildOf(InScriptStruct))
 		{
 			Result = TOptional(ItemProperties[i]);
 			
@@ -23,7 +23,7 @@ bool UDSBaseItem::HasProperty(const UScriptStruct* InScriptStruct, const bool bC
 {
 	for (int32 i = 0; i < ItemProperties.Num(); i++)
 	{
-		if (ItemProperties[i].GetScriptStruct() == InScriptStruct || (bCheckForChild && InScriptStruct->IsChildOf(ItemProperties[i].GetScriptStruct())))
+		if (ItemProperties[i].GetScriptStruct() == InScriptStruct || (bCheckForChild && ItemProperties[i].GetScriptStruct()->IsChildOf(InScriptStruct)))
 		{
 			return true;
 		}

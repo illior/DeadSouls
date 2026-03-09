@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Character/DSCharacter.h"
+
+#include "DSWeaponData.h"
 #include "Player/DSPlayerState.h"
 
 #include "Components/DSInventoryComponent.h"
@@ -10,6 +12,7 @@
 #include "Camera/CameraComponent.h"
 
 #include "Animation/DSAnimInstance.h"
+#include "AbilitySystem/DSAbilitySet.h"
 
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
@@ -112,6 +115,49 @@ void ADSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (ADSPlayerState* PS = GetPlayerState<ADSPlayerState>())
+	{
+		for (const TObjectPtr<UDSAbilitySet>& AbilitySet : DefaultAbilitySets)
+		{
+			PS->AddAbilitySet(AbilitySet);
+		}
+	}
+	
+	InventoryComponent->OnWeaponEquipped.AddDynamic(this, &ADSCharacter::EquipWeapon);
+	if (InventoryComponent->IsInitialized())
+	{
+		EquipWeapon(InventoryComponent->GetEquippedWeapon());
+	}
+}
+
+void ADSCharacter::EquipWeapon(UDSWeaponData* InWeaponData)
+{
+	if (IsValid(InWeaponData))
+	{
+		TOptional<FInstancedStruct> InstancedStruct = InWeaponData->GetItemProperty(FDSWeaponGameplayProperty::StaticStruct());
+		if (InstancedStruct.IsSet())
+		{
+			const FDSWeaponGameplayProperty* WeaponItemData = InstancedStruct->GetPtr<FDSWeaponGameplayProperty>();
+			if (WeaponItemData != nullptr)
+			{
+				if (USkeletalMeshComponent* SkeletalMeshComponent = GetMesh())
+				{
+					SkeletalMeshComponent->LinkAnimClassLayers(WeaponItemData->AnimLayer);
+				}
+			}
+		}
+		
+		UE_LOG(LogTemp, Warning, TEXT("EquipWeapon %s"), *InWeaponData->GetItemName().ToString());
+	}
+	else
+	{
+		if (USkeletalMeshComponent* SkeletalMeshComponent = GetMesh())
+		{
+			SkeletalMeshComponent->LinkAnimClassLayers(UnarmedAnimInstance);
+		}
+		
+		UE_LOG(LogTemp, Warning, TEXT("EquipWeapon nullptr"));
+	}
 }
 
 void ADSCharacter::InputLook(const FInputActionInstance& Value)

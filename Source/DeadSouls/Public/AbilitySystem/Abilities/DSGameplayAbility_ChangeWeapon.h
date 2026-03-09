@@ -15,7 +15,7 @@ public:
 	UDSGameplayAbility_ChangeWeapon(const FObjectInitializer& ObjectInitializer);
 	
 protected:
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<class UInputAction> ChangeWeaponAction;
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;

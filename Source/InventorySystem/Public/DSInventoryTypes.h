@@ -7,6 +7,7 @@
 
 class UDSBaseItem;
 class UDSItemData;
+class UDSWeaponData;
 struct FDSDocument;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDSOnInventoryInitializedSignature);
@@ -18,6 +19,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDSOnInventoryItemCreatedSignature, 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDSOnInventoryItemRemovedSignature, UDSItemData*, InItemData);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDSOnInventoryItemUpdatedSignature, UDSItemData*, InItemData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDSOnInventoryWeaponEquippedSignature, UDSWeaponData*, InWeaponData);
 
 USTRUCT(BlueprintType)
 struct FDSDocument : public FTableRowBase
@@ -79,7 +81,7 @@ struct FDSItemInstancedProperty
 };
 
 USTRUCT(Blueprintable)
-struct FDSAmmoItemData : public FDSItemInstancedProperty
+struct FDSAmmoProperty : public FDSItemInstancedProperty
 {
 	GENERATED_BODY()
 	
@@ -88,11 +90,11 @@ struct FDSAmmoItemData : public FDSItemInstancedProperty
 };
 
 USTRUCT(Blueprintable)
-struct FDSWeaponItemData : public FDSItemInstancedProperty
+struct FDSWeaponProperty : public FDSItemInstancedProperty
 {
 	GENERATED_BODY()
 	
-	FDSWeaponItemData()
+	FDSWeaponProperty()
 	{
 		MaxAmmoInClip = 0;
 		AmmoType = EDSAmmoType::Pistol;

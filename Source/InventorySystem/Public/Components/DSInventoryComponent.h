@@ -40,6 +40,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
 	FDSOnInventoryItemUpdatedSignature OnItemUpdated;
 	
+	UPROPERTY(BlueprintAssignable, Category = "InventorySystem")
+	FDSOnInventoryWeaponEquippedSignature OnWeaponEquipped;
+	
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	EDSSlotState GetSlotState(FIntPoint InPosition) const;
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
