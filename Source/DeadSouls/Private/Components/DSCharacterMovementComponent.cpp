@@ -21,7 +21,7 @@ void UDSCharacterMovementComponent::InitializeWithAbilitySystem(UAbilitySystemCo
 	
 	AbilitySystem->RegisterGameplayTagEvent(
 		FGameplayTag::RequestGameplayTag(FName(TEXT("Character.State"))),
-		EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UDSCharacterMovementComponent::CharacterStateHandle
+		EGameplayTagEventType::AnyCountChange).AddUObject(this, &UDSCharacterMovementComponent::CharacterStateHandle
 	);
 }
 
@@ -43,13 +43,14 @@ void UDSCharacterMovementComponent::CharacterStateHandle(FGameplayTag InGameplay
 		return;
 	}
 	
-	bShouldSprint = AbilitySystem->GetGameplayTagCount(DSGameplayTags::Character_State_Sprint) != 0;
-	if (AbilitySystem->GetGameplayTagCount(DSGameplayTags::Character_State_DisableMovement) != 0)
+	if (AbilitySystem->HasMatchingGameplayTag(DSGameplayTags::Character_State_DisableMovement))
 	{
 		SetMovementMode(EMovementMode::MOVE_None);
+		
+		return;
 	}
-	else
-	{
-		SetMovementMode(EMovementMode::MOVE_Walking);
-	}
+	
+	SetMovementMode(EMovementMode::MOVE_Walking);
+	bShouldSprint = AbilitySystem->HasMatchingGameplayTag(DSGameplayTags::Character_State_Sprint);
+
 }

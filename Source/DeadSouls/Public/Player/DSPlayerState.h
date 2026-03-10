@@ -31,7 +31,7 @@ public:
 	
 protected:
 	UPROPERTY()
-	TMap<TObjectPtr<UDSAbilitySet>, FDSAbilitySetGrantedHandles> AbilitySetHandles;
+	TMap<UDSAbilitySet*, FDSAbilitySetGrantedHandles> AbilitySetHandles;
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem", meta = (AllowPrivateAccess = "true"))

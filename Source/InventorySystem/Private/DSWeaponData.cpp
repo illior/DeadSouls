@@ -6,12 +6,32 @@
 
 int32 UDSWeaponData::GetItemMaxAmmoInClip() const
 {
-	return GetCachedWeaponItem().MaxAmmoInClip;
+	if (IsValid(Item))
+	{
+		TOptional<FInstancedStruct> WeaponItem = Item->GetProperty(FDSWeaponProperty::StaticStruct());
+		
+		if (WeaponItem.IsSet())
+		{
+			return WeaponItem->Get<FDSWeaponProperty>().MaxAmmoInClip;
+		}
+	}
+	
+	return 1;
 }
 
 EDSAmmoType UDSWeaponData::GetItemAmmoType() const
 {
-	return GetCachedWeaponItem().AmmoType;
+	if (IsValid(Item))
+	{
+		TOptional<FInstancedStruct> WeaponItem = Item->GetProperty(FDSWeaponProperty::StaticStruct());
+		
+		if (WeaponItem.IsSet())
+		{
+			return WeaponItem->Get<FDSWeaponProperty>().AmmoType;
+		}
+	}
+	
+	return EDSAmmoType::Pistol;
 }
 
 bool UDSWeaponData::SetCount(const int32 InCount)
@@ -42,7 +62,7 @@ void UDSWeaponData::Initialize(UDSBaseItem* InItem, int32 InCount, FIntPoint InP
 
 bool UDSWeaponData::IsFull() const
 {
-	return GetCachedWeaponItem().MaxAmmoInClip == CurrentAmmoInClip;
+	return GetItemMaxAmmoInClip() == CurrentAmmoInClip;
 }
 
 bool UDSWeaponData::CanDrop() const
@@ -73,25 +93,3 @@ void UDSWeaponData::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 	}
 }
 #endif
-
-FDSWeaponProperty UDSWeaponData::GetCachedWeaponItem() const
-{
-	if (CachedWeaponItem.MaxAmmoInClip != 0)
-	{
-		return CachedWeaponItem;
-	}
-	
-	if (IsValid(Item))
-	{
-		TOptional<FInstancedStruct> WeaponItem = Item->GetProperty(FDSWeaponProperty::StaticStruct());
-		
-		if (WeaponItem.IsSet())
-		{
-			CachedWeaponItem = WeaponItem->GetMutable<FDSWeaponProperty>();
-		}
-		
-		return CachedWeaponItem;
-	}
-	
-	return FDSWeaponProperty();
-}

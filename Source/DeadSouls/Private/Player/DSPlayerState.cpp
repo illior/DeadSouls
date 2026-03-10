@@ -17,7 +17,7 @@ void ADSPlayerState::AddAbilitySet(UDSAbilitySet* InAbilitySet)
 	}
 	
 	const FDSAbilitySetGrantedHandles Handle = InAbilitySet->GiveToAbilitySystem(AbilitySystemComponent);
-	AbilitySetHandles.Add(TObjectPtr<UDSAbilitySet>(InAbilitySet), Handle);
+	AbilitySetHandles.Add(InAbilitySet, Handle);
 }
 
 void ADSPlayerState::RemoveAbilitySet(UDSAbilitySet* InAbilitySet)
@@ -27,10 +27,10 @@ void ADSPlayerState::RemoveAbilitySet(UDSAbilitySet* InAbilitySet)
 		return;
 	}
 	
-	if (FDSAbilitySetGrantedHandles* Handles = AbilitySetHandles.Find(TObjectPtr<UDSAbilitySet>(InAbilitySet)))
+	if (FDSAbilitySetGrantedHandles* Handles = AbilitySetHandles.Find(InAbilitySet))
 	{
 		Handles->TakeFromAbilitySystem(AbilitySystemComponent);
-		AbilitySetHandles.Remove(TObjectPtr<UDSAbilitySet>(InAbilitySet));
+		AbilitySetHandles.Remove(InAbilitySet);
 	}
 }
 
@@ -41,7 +41,7 @@ void ADSPlayerState::ClearAllAbilitySets()
 		return;
 	}
 
-	for (TPair<TObjectPtr<UDSAbilitySet>, FDSAbilitySetGrantedHandles>& Elem : AbilitySetHandles)
+	for (TPair<UDSAbilitySet*, FDSAbilitySetGrantedHandles>& Elem : AbilitySetHandles)
 	{
 		Elem.Value.TakeFromAbilitySystem(AbilitySystemComponent);
 	}

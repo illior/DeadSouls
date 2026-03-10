@@ -42,8 +42,4 @@ protected:
 	EDSWeaponFastAccessIndex FastAccessIndex = EDSWeaponFastAccessIndex::None;
 	UPROPERTY(BlueprintReadOnly, SaveGame, Category = "Weapon Data")
 	bool bIsEquip = false;
-	
-	FDSWeaponProperty GetCachedWeaponItem() const;
-private:
-	mutable FDSWeaponProperty CachedWeaponItem = FDSWeaponProperty();
 };

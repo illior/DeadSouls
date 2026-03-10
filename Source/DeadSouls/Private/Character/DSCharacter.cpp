@@ -115,6 +115,10 @@ void ADSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	InitialArmLength = SpringArmComponent->TargetArmLength;
+	InitialSocketOffset = SpringArmComponent->SocketOffset;
+	InitialFOV = CameraComponent->FieldOfView;
+	
 	if (ADSPlayerState* PS = GetPlayerState<ADSPlayerState>())
 	{
 		for (const TObjectPtr<UDSAbilitySet>& AbilitySet : DefaultAbilitySets)
@@ -132,31 +136,43 @@ void ADSCharacter::BeginPlay()
 
 void ADSCharacter::EquipWeapon(UDSWeaponData* InWeaponData)
 {
+	USkeletalMeshComponent* SkeletalMeshComponent = GetMesh();
+	ADSPlayerState* PS = GetPlayerState<ADSPlayerState>();
+	if (!IsValid(SkeletalMeshComponent) || !IsValid(PS))
+	{
+		return;
+	}
+	
+	if (IsValid(CurrentWeapon))
+	{
+		TOptional<FInstancedStruct> InstancedStruct = CurrentWeapon->GetItemProperty(FDSWeaponGameplayProperty::StaticStruct());
+		if (InstancedStruct.IsSet())
+		{
+			const FDSWeaponGameplayProperty* CurrentWeaponProperty = InstancedStruct->GetPtr<FDSWeaponGameplayProperty>();
+				
+			PS->RemoveAbilitySet(CurrentWeaponProperty->AbilitySet);
+			SkeletalMeshComponent->UnlinkAnimClassLayers(CurrentWeaponProperty->AnimLayer);
+		}
+	}
+	
 	if (IsValid(InWeaponData))
 	{
 		TOptional<FInstancedStruct> InstancedStruct = InWeaponData->GetItemProperty(FDSWeaponGameplayProperty::StaticStruct());
 		if (InstancedStruct.IsSet())
 		{
-			const FDSWeaponGameplayProperty* WeaponItemData = InstancedStruct->GetPtr<FDSWeaponGameplayProperty>();
-			if (WeaponItemData != nullptr)
-			{
-				if (USkeletalMeshComponent* SkeletalMeshComponent = GetMesh())
-				{
-					SkeletalMeshComponent->LinkAnimClassLayers(WeaponItemData->AnimLayer);
-				}
-			}
+			const FDSWeaponGameplayProperty* WeaponProperty = InstancedStruct->GetPtr<FDSWeaponGameplayProperty>();
+			
+			SkeletalMeshComponent->LinkAnimClassLayers(WeaponProperty->AnimLayer);
+			PS->AddAbilitySet(WeaponProperty->AbilitySet);
 		}
 		
-		UE_LOG(LogTemp, Warning, TEXT("EquipWeapon %s"), *InWeaponData->GetItemName().ToString());
+		CurrentWeapon = InWeaponData;
 	}
 	else
 	{
-		if (USkeletalMeshComponent* SkeletalMeshComponent = GetMesh())
-		{
-			SkeletalMeshComponent->LinkAnimClassLayers(UnarmedAnimInstance);
-		}
+		SkeletalMeshComponent->LinkAnimClassLayers(UnarmedAnimInstance);
 		
-		UE_LOG(LogTemp, Warning, TEXT("EquipWeapon nullptr"));
+		CurrentWeapon = nullptr;
 	}
 }
 

@@ -31,6 +31,12 @@ public:
 	USpringArmComponent* GetSpringArmComponent() const;
 	UCameraComponent* GetCameraComponent() const;
 	UDSInventoryComponent* GetInventoryComponent() const;
+	
+	float GetInitialArmLength() const { return  InitialArmLength; };
+	FVector GetInitialSocketOffset() const { return  InitialSocketOffset; };
+	
+	float GetInitialFOV() const { return InitialFOV; };
+	
 	//~ Begin AbilitySystem Interface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	//~ End AbilitySystem Interface
@@ -54,6 +60,14 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Input", Meta = (Categories = "InputTag"))
 	TMap<TObjectPtr<UInputAction>, FGameplayTag> InputBindings;
+	
+	UPROPERTY()
+	UDSWeaponData* CurrentWeapon;
+	
+	float InitialArmLength;
+	FVector InitialSocketOffset;
+	
+	float InitialFOV;
 	
 	//~ Begin AActor Interface.
 	virtual void BeginPlay() override;
