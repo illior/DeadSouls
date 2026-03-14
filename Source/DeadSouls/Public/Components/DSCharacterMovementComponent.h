@@ -8,6 +8,7 @@
 #include "DSCharacterMovementComponent.generated.h"
 
 class UAbilitySystemComponent;
+struct FOnAttributeChangeData;
 
 UCLASS()
 class DEADSOULS_API UDSCharacterMovementComponent : public UCharacterMovementComponent
@@ -18,13 +19,6 @@ public:
 	UDSCharacterMovementComponent();
 	
 	virtual void InitializeWithAbilitySystem(UAbilitySystemComponent* AbilitySystem);
-	
-	virtual float GetMaxSpeed() const override;
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Movement: Walking", meta = (ClampMin = "0", UIMin = "0", ForceUnits = "cm/s", DisplayAfter = "MaxWalkSpeedCrouched"))
-	float MaxSprintSpeed = 450.0f;
-
-	bool bShouldSprint = false;
-	
-	void CharacterStateHandle(FGameplayTag InGameplayTag, int32 InInt);
+	void OnMoveSpeedChanged(const FOnAttributeChangeData& Data);
 };

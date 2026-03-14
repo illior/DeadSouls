@@ -59,6 +59,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Transition Settings")
 	FAlphaBlendArgs BlendType;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Transition Settings")
+	TSubclassOf<UGameplayEffect> AimEffect;
+	
+	FActiveGameplayEffectHandle ActiveAimEffect;
+	
 	UFUNCTION()
 	void OnInputRelease(float TimeHeld);
 	

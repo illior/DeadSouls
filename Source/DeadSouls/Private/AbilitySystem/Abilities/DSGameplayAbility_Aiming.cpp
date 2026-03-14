@@ -117,6 +117,12 @@ void UDSGameplayAbility_Aiming::ActivateAbility(const FGameplayAbilitySpecHandle
 		return;
 	}
 	
+	if (IsValid(AimEffect))
+	{
+		const UGameplayEffect* GameplayEffect = AimEffect->GetDefaultObject<UGameplayEffect>();
+		ActiveAimEffect = ApplyGameplayEffectToOwner(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, GameplayEffect, 0, 1);
+	}
+	
 	StartTransition(TargetArmLength, TargetSocketOffset, TargetFOV);
 	
 	UAbilityTask_WaitInputRelease* WaitInputRelease = UAbilityTask_WaitInputRelease::WaitInputRelease(this, true);
@@ -127,6 +133,11 @@ void UDSGameplayAbility_Aiming::ActivateAbility(const FGameplayAbilitySpecHandle
 void UDSGameplayAbility_Aiming::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	
+	if (ActiveAimEffect.IsValid())
+	{
+		BP_RemoveGameplayEffectFromOwnerWithHandle(ActiveAimEffect);
+	}
 	
 	ADSCharacter* Character = GetDSCharacterFromActorInfo();
 	if (IsValid(Character))

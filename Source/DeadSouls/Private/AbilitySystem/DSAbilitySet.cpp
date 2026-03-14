@@ -71,6 +71,22 @@ FDSAbilitySetGrantedHandles UDSAbilitySet::GiveToAbilitySystem(UDSAbilitySystemC
 		return GrantedHandles;
 	}
 	
+	for (int32 SetIndex = 0; SetIndex < GrantedAttributes.Num(); SetIndex++)
+	{
+		const FDSAbilitySet_AttributeSet& SetToGrant = GrantedAttributes[SetIndex];
+
+		if (!IsValid(SetToGrant.AttributeSet))
+		{
+			//UE_LOG(LogDSAbilitySystem, Error, TEXT("GrantedAttributes[%d] on ability set [%s] is not valid"), SetIndex, *GetNameSafe(this));
+			continue;
+		}
+
+		UAttributeSet* NewSet = NewObject<UAttributeSet>(AbilitySystem->GetOwner(), SetToGrant.AttributeSet);
+		AbilitySystem->AddAttributeSetSubobject(NewSet);
+
+		GrantedHandles.AddAttributeSet(NewSet);
+	}
+	
 	for (int32 AbilityIndex = 0; AbilityIndex < GrantedGameplayAbilities.Num(); AbilityIndex++)
 	{
 		const FDSAbilitySet_GameplayAbility& AbilityToGrant = GrantedGameplayAbilities[AbilityIndex];
@@ -105,22 +121,6 @@ FDSAbilitySetGrantedHandles UDSAbilitySet::GiveToAbilitySystem(UDSAbilitySystemC
 		const FActiveGameplayEffectHandle GameplayEffectHandle = AbilitySystem->ApplyGameplayEffectToSelf(GameplayEffect, EffectToGrant.EffectLevel, AbilitySystem->MakeEffectContext());
 
 		GrantedHandles.AddGameplayEffectHandle(GameplayEffectHandle);
-	}
-	
-	for (int32 SetIndex = 0; SetIndex < GrantedAttributes.Num(); SetIndex++)
-	{
-		const FDSAbilitySet_AttributeSet& SetToGrant = GrantedAttributes[SetIndex];
-
-		if (!IsValid(SetToGrant.AttributeSet))
-		{
-			//UE_LOG(LogDSAbilitySystem, Error, TEXT("GrantedAttributes[%d] on ability set [%s] is not valid"), SetIndex, *GetNameSafe(this));
-			continue;
-		}
-
-		UAttributeSet* NewSet = NewObject<UAttributeSet>(AbilitySystem->GetOwner(), SetToGrant.AttributeSet);
-		AbilitySystem->AddAttributeSetSubobject(NewSet);
-
-		GrantedHandles.AddAttributeSet(NewSet);
 	}
 	
 	return GrantedHandles;

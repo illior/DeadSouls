@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Components/DSCharacterMovementComponent.h"
+#include "AbilitySystem/Attributes/DSMovementAttributeSet.h"
 #include "AbilitySystem/DSGameplayTags.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
@@ -19,38 +20,10 @@ void UDSCharacterMovementComponent::InitializeWithAbilitySystem(UAbilitySystemCo
 {
 	check(AbilitySystem);
 	
-	AbilitySystem->RegisterGameplayTagEvent(
-		FGameplayTag::RequestGameplayTag(FName(TEXT("Character.State"))),
-		EGameplayTagEventType::AnyCountChange).AddUObject(this, &UDSCharacterMovementComponent::CharacterStateHandle
-	);
+	AbilitySystem->GetGameplayAttributeValueChangeDelegate(UDSMovementAttributeSet::GetMoveSpeedAttribute()).AddUObject(this, &UDSCharacterMovementComponent::OnMoveSpeedChanged);
 }
 
-float UDSCharacterMovementComponent::GetMaxSpeed() const
+void UDSCharacterMovementComponent::OnMoveSpeedChanged(const FOnAttributeChangeData& Data)
 {
-	if (bShouldSprint)
-	{
-		return MaxSprintSpeed;
-	}
-
-	return Super::GetMaxSpeed();
-}
-
-void UDSCharacterMovementComponent::CharacterStateHandle(FGameplayTag InGameplayTag, int32 InInt)
-{
-	UAbilitySystemComponent* AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwner());
-	if (!IsValid(AbilitySystem))
-	{
-		return;
-	}
-	
-	if (AbilitySystem->HasMatchingGameplayTag(DSGameplayTags::Character_State_DisableMovement))
-	{
-		SetMovementMode(EMovementMode::MOVE_None);
-		
-		return;
-	}
-	
-	SetMovementMode(EMovementMode::MOVE_Walking);
-	bShouldSprint = AbilitySystem->HasMatchingGameplayTag(DSGameplayTags::Character_State_Sprint);
-
+	MaxWalkSpeed = Data.NewValue;
 }
