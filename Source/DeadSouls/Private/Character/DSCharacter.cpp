@@ -149,7 +149,7 @@ void ADSCharacter::EquipWeapon(UDSWeaponData* InWeaponData)
 		if (InstancedStruct.IsSet())
 		{
 			const FDSWeaponGameplayProperty* CurrentWeaponProperty = InstancedStruct->GetPtr<FDSWeaponGameplayProperty>();
-				
+			
 			PS->RemoveAbilitySet(CurrentWeaponProperty->AbilitySet);
 			SkeletalMeshComponent->UnlinkAnimClassLayers(CurrentWeaponProperty->AnimLayer);
 		}

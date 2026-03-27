@@ -32,5 +32,10 @@ struct FDSWeaponGameplayProperty : public FDSWeaponProperty
 	TSubclassOf<UAnimInstance> AnimLayer;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> EquipMontage;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> UnequipMontage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<class UDSAbilitySet> AbilitySet;
 };
