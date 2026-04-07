@@ -8,7 +8,7 @@
 #include "Components/DSInventoryComponent.h"
 #include "AbilitySystem/DSAbilitySystemComponent.h"
 #include "Components/DSCharacterMovementComponent.h"
-#include "GameFramework/SpringArmComponent.h"
+#include "Components/DSSpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 
 #include "Animation/DSAnimInstance.h"
@@ -27,7 +27,7 @@ ADSCharacter::ADSCharacter(const FObjectInitializer& ObjInit)
 	bUseControllerRotationRoll = false;
 
 	// SpringArmComponent
-	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	SpringArmComponent = CreateDefaultSubobject<UDSSpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComponent->SetupAttachment(GetRootComponent());
 	SpringArmComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 60.0f));
 	SpringArmComponent->TargetArmLength = 130.0f;
@@ -49,7 +49,7 @@ ADSCharacter::ADSCharacter(const FObjectInitializer& ObjInit)
 	InventoryComponent = CreateDefaultSubobject<UDSInventoryComponent>(TEXT("InventoryComponent"));
 }
 
-USpringArmComponent* ADSCharacter::GetSpringArmComponent() const
+UDSSpringArmComponent* ADSCharacter::GetSpringArmComponent() const
 {
 	return SpringArmComponent;
 }
@@ -67,6 +67,22 @@ UDSInventoryComponent* ADSCharacter::GetInventoryComponent() const
 UAbilitySystemComponent* ADSCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void ADSCharacter::SetAnimLayer(TSubclassOf<UAnimInstance> InAnimLayerClass)
+{
+	if (USkeletalMeshComponent* SkeletalMeshComponent = GetMesh())
+	{
+		SkeletalMeshComponent->LinkAnimClassLayers(InAnimLayerClass);
+	}
+}
+
+void ADSCharacter::ResetAnimLayer(TSubclassOf<UAnimInstance> InAnimLayerClass)
+{
+	if (USkeletalMeshComponent* SkeletalMeshComponent = GetMesh())
+	{
+		SkeletalMeshComponent->UnlinkAnimClassLayers(InAnimLayerClass);
+	}
 }
 
 void ADSCharacter::PossessedBy(AController* NewController)
@@ -115,10 +131,6 @@ void ADSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	InitialArmLength = SpringArmComponent->TargetArmLength;
-	InitialSocketOffset = SpringArmComponent->SocketOffset;
-	InitialFOV = CameraComponent->FieldOfView;
-	
 	if (ADSPlayerState* PS = GetPlayerState<ADSPlayerState>())
 	{
 		for (const TObjectPtr<UDSAbilitySet>& AbilitySet : DefaultAbilitySets)
@@ -127,53 +139,7 @@ void ADSCharacter::BeginPlay()
 		}
 	}
 	
-	InventoryComponent->OnWeaponEquipped.AddDynamic(this, &ADSCharacter::EquipWeapon);
-	if (InventoryComponent->IsInitialized())
-	{
-		EquipWeapon(InventoryComponent->GetEquippedWeapon());
-	}
-}
-
-void ADSCharacter::EquipWeapon(UDSWeaponData* InWeaponData)
-{
-	USkeletalMeshComponent* SkeletalMeshComponent = GetMesh();
-	ADSPlayerState* PS = GetPlayerState<ADSPlayerState>();
-	if (!IsValid(SkeletalMeshComponent) || !IsValid(PS))
-	{
-		return;
-	}
-	
-	if (IsValid(CurrentWeapon))
-	{
-		TOptional<FInstancedStruct> InstancedStruct = CurrentWeapon->GetItemProperty(FDSWeaponGameplayProperty::StaticStruct());
-		if (InstancedStruct.IsSet())
-		{
-			const FDSWeaponGameplayProperty* CurrentWeaponProperty = InstancedStruct->GetPtr<FDSWeaponGameplayProperty>();
-			
-			PS->RemoveAbilitySet(CurrentWeaponProperty->AbilitySet);
-			SkeletalMeshComponent->UnlinkAnimClassLayers(CurrentWeaponProperty->AnimLayer);
-		}
-	}
-	
-	if (IsValid(InWeaponData))
-	{
-		TOptional<FInstancedStruct> InstancedStruct = InWeaponData->GetItemProperty(FDSWeaponGameplayProperty::StaticStruct());
-		if (InstancedStruct.IsSet())
-		{
-			const FDSWeaponGameplayProperty* WeaponProperty = InstancedStruct->GetPtr<FDSWeaponGameplayProperty>();
-			
-			SkeletalMeshComponent->LinkAnimClassLayers(WeaponProperty->AnimLayer);
-			PS->AddAbilitySet(WeaponProperty->AbilitySet);
-		}
-		
-		CurrentWeapon = InWeaponData;
-	}
-	else
-	{
-		SkeletalMeshComponent->LinkAnimClassLayers(UnarmedAnimInstance);
-		
-		CurrentWeapon = nullptr;
-	}
+	SetAnimLayer(UnarmedAnimInstance);
 }
 
 void ADSCharacter::InputLook(const FInputActionInstance& Value)

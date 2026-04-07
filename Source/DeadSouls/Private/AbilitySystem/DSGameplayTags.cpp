@@ -16,4 +16,5 @@ namespace DSGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Character_State_DisableMovement, "Character.State.DisableMovement", "");
 
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayEvent_Death, "GameplayEvent.Death", "Event that fires on death.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayEvent_ChangeWeapon, "GameplayEvent.ChangeWeapon", "");
 }

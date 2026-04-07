@@ -18,4 +18,5 @@ namespace DSGameplayTags
 	DEADSOULS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Character_State_DisableMovement);
 
 	DEADSOULS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEvent_Death);
+	DEADSOULS_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEvent_ChangeWeapon);
 }

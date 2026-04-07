@@ -8,12 +8,19 @@
 #include "EnhancedPlayerInput.h"
 
 #include "Character/DSCharacter.h"
+#include "Player/DSPlayerState.h"
 #include "Components/DSInventoryComponent.h"
 #include "DSWeaponData.h"
 
 UDSGameplayAbility_ChangeWeapon::UDSGameplayAbility_ChangeWeapon(const FObjectInitializer& ObjectInitializer)
 {
 	SetAssetTags(FGameplayTagContainer(DSGameplayTags::GameplayAbility_ChangeWeapon));
+	
+	FAbilityTriggerData TriggerData;
+	TriggerData.TriggerTag = DSGameplayTags::GameplayEvent_ChangeWeapon;
+	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+	
+	AbilityTriggers.Add(TriggerData);
 }
 
 void UDSGameplayAbility_ChangeWeapon::EquipWeapon()
@@ -23,6 +30,16 @@ void UDSGameplayAbility_ChangeWeapon::EquipWeapon()
 	if (InstancedStruct.IsSet())
 	{
 		const FDSWeaponGameplayProperty* EquippedWeaponProperty = InstancedStruct->GetPtr<FDSWeaponGameplayProperty>();
+		
+		if (ADSCharacter* Character = GetDSCharacterFromActorInfo())
+		{
+			Character->SetAnimLayer(EquippedWeaponProperty->AnimLayer);
+			 
+			if (ADSPlayerState* PlayerState = Cast<ADSPlayerState>(Character->GetPlayerState()))
+			{
+				PlayerState->AddAbilitySet(EquippedWeaponProperty->AbilitySet);
+			}
+		}
 		
 		UAbilityTask_PlayMontageAndWait* EquipTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,
@@ -63,12 +80,33 @@ void UDSGameplayAbility_ChangeWeapon::CompleteEquip()
 
 void UDSGameplayAbility_ChangeWeapon::CompleteUnequip()
 {
+	TOptional<FInstancedStruct> InstancedStruct = EquippedWeapon->GetItemProperty(FDSWeaponGameplayProperty::StaticStruct());
+	if (InstancedStruct.IsSet())
+	{
+		const FDSWeaponGameplayProperty* EquippedWeaponProperty = InstancedStruct->GetPtr<FDSWeaponGameplayProperty>();
+		
+		if (ADSCharacter* Character = GetDSCharacterFromActorInfo())
+		{
+			Character->ResetAnimLayer(EquippedWeaponProperty->AnimLayer);
+			
+			if (ADSPlayerState* PlayerState = Cast<ADSPlayerState>(Character->GetPlayerState()))
+			{
+				PlayerState->RemoveAbilitySet(EquippedWeaponProperty->AbilitySet);
+			}
+		}
+	}
+	
 	if (IsValid(WeaponToEquip))
 	{
 		EquipWeapon();
 	}
 	else
 	{
+		if (ADSCharacter* Character = GetDSCharacterFromActorInfo())
+		{
+			Character->SetAnimLayer(Character->UnarmedAnimInstance);
+		}
+		
 		constexpr bool bReplicateEndAbility = true;
 		constexpr bool bWasCanceled = true;
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicateEndAbility, bWasCanceled);
@@ -86,55 +124,59 @@ void UDSGameplayAbility_ChangeWeapon::ActivateAbility(const FGameplayAbilitySpec
 		return;
 	}
 	
-	int32 Value = 0;
-	ADSPlayerController* PlayerController = GetDSPlayerControllerFromActorInfo();
-	if (IsValid(PlayerController))
-	{
-		UEnhancedPlayerInput* EnhancedPlayerInput = Cast<UEnhancedPlayerInput>(PlayerController->PlayerInput);
-		if (IsValid(EnhancedPlayerInput))
-		{
-			Value = FMath::RoundToInt(EnhancedPlayerInput->GetActionValue(ChangeWeaponAction).Get<float>());
-		}
-	}
-	
 	ADSCharacter* Character = GetDSCharacterFromActorInfo();
-	if (IsValid(Character))
+	if (!IsValid(Character))
 	{
-		UDSInventoryComponent* InventoryComponent = Character->GetInventoryComponent();
-		if (IsValid(InventoryComponent))
+		K2_CancelAbility();
+		
+		return;
+	}
+	
+	UDSInventoryComponent* InventoryComponent = Character->GetInventoryComponent();
+	if (!IsValid(InventoryComponent))
+	{
+		K2_CancelAbility();
+		
+		return;
+	}
+	
+	if (TriggerEventData)
+	{
+		WeaponToEquip = Cast<UDSWeaponData>(static_cast<UDSWeaponData*>(TriggerEventData->OptionalObject));
+	}
+	else
+	{
+		ADSPlayerController* PlayerController = GetDSPlayerControllerFromActorInfo();
+		if (IsValid(PlayerController))
 		{
-			EquippedWeapon = InventoryComponent->GetEquippedWeapon();
-			WeaponToEquip = InventoryComponent->GetFastAccessWeapon(static_cast<EDSWeaponFastAccessIndex>(Value));
-			
-			if (EquippedWeapon == WeaponToEquip)
+			UEnhancedPlayerInput* EnhancedPlayerInput = Cast<UEnhancedPlayerInput>(PlayerController->PlayerInput);
+			if (IsValid(EnhancedPlayerInput))
 			{
-				constexpr bool bReplicateEndAbility = true;
-				constexpr bool bWasCanceled = true;
-				EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicateEndAbility, bWasCanceled);
-
-				return;
-			}
+				int32 Value = FMath::RoundToInt(EnhancedPlayerInput->GetActionValue(ChangeWeaponAction).Get<float>());
 			
-			InventoryComponent->SetEquippedWeapon(WeaponToEquip);
-			
-			if (IsValid(EquippedWeapon))
-			{
-				UnequipWeapon();
-				
-				return;
-			}
-			
-			if (IsValid(WeaponToEquip))
-			{
-				InventoryComponent->SetEquippedWeapon(WeaponToEquip);
-				EquipWeapon();
-				
-				return;
+				WeaponToEquip = InventoryComponent->GetFastAccessWeapon(static_cast<EDSWeaponFastAccessIndex>(Value));
 			}
 		}
 	}
 	
-	constexpr bool bReplicateEndAbility = true;
-	constexpr bool bWasCanceled = true;
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicateEndAbility, bWasCanceled);
+	EquippedWeapon = InventoryComponent->GetEquippedWeapon();
+	if (EquippedWeapon == WeaponToEquip)
+	{
+		K2_CancelAbility();
+
+		return;
+	}
+	
+	InventoryComponent->SetEquippedWeapon(WeaponToEquip);
+			
+	if (IsValid(EquippedWeapon))
+	{
+		UnequipWeapon();
+	}
+	else
+	{
+		Character->ResetAnimLayer(Character->UnarmedAnimInstance);
+				
+		EquipWeapon();
+	}
 }

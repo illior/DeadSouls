@@ -11,7 +11,7 @@
 
 class UDSInventoryComponent;
 class UDSAbilitySystemComponent;
-class USpringArmComponent;
+class UDSSpringArmComponent;
 class UCameraComponent;
 
 class UDSWeaponData;
@@ -26,20 +26,24 @@ class DEADSOULS_API ADSCharacter : public ACharacter, public IAbilitySystemInter
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Character")
+	TSubclassOf<UAnimInstance> UnarmedAnimInstance;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Character")
+	TArray<TObjectPtr<UDSAbilitySet>> DefaultAbilitySets;
+	
 	ADSCharacter(const FObjectInitializer& ObjInit);
 
-	USpringArmComponent* GetSpringArmComponent() const;
+	UDSSpringArmComponent* GetSpringArmComponent() const;
 	UCameraComponent* GetCameraComponent() const;
 	UDSInventoryComponent* GetInventoryComponent() const;
-	
-	float GetInitialArmLength() const { return  InitialArmLength; };
-	FVector GetInitialSocketOffset() const { return  InitialSocketOffset; };
-	
-	float GetInitialFOV() const { return InitialFOV; };
 	
 	//~ Begin AbilitySystem Interface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	//~ End AbilitySystem Interface
+	
+	void SetAnimLayer(TSubclassOf<UAnimInstance> InAnimLayerClass);
+	void ResetAnimLayer(TSubclassOf<UAnimInstance> InAnimLayerClass);
 	
 	//~ Begin APawn Interface.
 	virtual void PossessedBy(AController* NewController) override;
@@ -47,12 +51,6 @@ public:
 	//~ End APawn Interface
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Character")
-	TSubclassOf<UAnimInstance> UnarmedAnimInstance;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Character")
-	TArray<TObjectPtr<UDSAbilitySet>> DefaultAbilitySets;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Input")
 	TObjectPtr<UInputAction> LookAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DeadSouls: Input")
@@ -64,17 +62,9 @@ protected:
 	UPROPERTY()
 	UDSWeaponData* CurrentWeapon;
 	
-	float InitialArmLength;
-	FVector InitialSocketOffset;
-	
-	float InitialFOV;
-	
 	//~ Begin AActor Interface.
 	virtual void BeginPlay() override;
 	//~ End AActor Interface
-
-	UFUNCTION()
-	void EquipWeapon(UDSWeaponData* InWeaponData);
 	
 	void InputLook(const FInputActionInstance& Value);
 	void InputMove(const FInputActionInstance& Value);
@@ -84,7 +74,7 @@ protected:
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USpringArmComponent> SpringArmComponent;
+	TObjectPtr<UDSSpringArmComponent> SpringArmComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> CameraComponent;
